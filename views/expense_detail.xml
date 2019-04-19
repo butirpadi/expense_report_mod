@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+
+        <record id="expense_detail_action" model="ir.actions.act_window">
+            <field name="name">Expense Detail</field>
+            <field name="res_model">hr.expense</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+
+        <menuitem id="menu_expense_detail" name="Expenses Detail" parent="hr_expense.menu_hr_expense_accountant" action="expense_detail_action"/>
+        
+    </data>
+</odoo>

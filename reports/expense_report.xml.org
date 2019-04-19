@@ -1,0 +1,145 @@
+<odoo>
+    <data>
+        <report id="travel_expense_report_action" model="laporan.expense" string="Expense PDF Report" report_type="qweb-pdf" name="expense_report_mod.travel_expense_report_document" file="expense_report_mod.travel_expense_report" menu="False"/>
+
+        <record model="report.paperformat" id="travel_expense_report_format">
+            <field name="name">paperformat.expense.report.custom</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_width">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">15</field>
+            <field name="margin_right">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">10</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- record id dibawah ini harus sama dengan report id -->
+        <record id="expense_report_mod.travel_expense_report_action" model="ir.actions.report.xml">
+            <!-- field ref harus sama dengan id record paperformat -->
+            <field name="paperformat_id" ref="expense_report_mod.travel_expense_report_format"/>
+        </record>
+
+        <!-- template id dibawah ini harus sama dengan report name -->
+        <template id="travel_expense_report_document">
+            <t t-call="report.html_container">
+                <t t-set="data_report_margin_top" t-value="12"/>
+                <t t-set="data_report_header_spacing" t-value="9"/>
+                <t t-set="data_report_dpi" t-value="110"/>
+                <t t-call="report.internal_layout">
+                    <div class="page">
+                        <h2 ><span t-esc="res_company.name"/>: Expense Report</h2>
+                        <div class="row mb32">
+                            <div class="col-xs-4">
+                                <t t-if="date_from">
+                                    <strong>Date from :</strong>
+                                    <span t-esc="date_from"/>
+                                    <br/>
+                                </t>
+                            </div>
+                            <div class="col-xs-4">
+                                <t t-if="date_to">
+                                    <strong>Date to :</strong>
+                                    <span t-esc="date_to"/>
+                                </t>
+                            </div>
+                        </div>
+
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr class="text-center">
+                                    <th class="col-xs-1" >Date</th>
+                                    <th class="col-xs-2" >Partner</th>
+                                    <t t-if="report_type=='sum'">
+                                        <th>Description</th>
+                                    </t>
+                                    <t t-if="report_type=='detail'">
+                                        <th>Description</th>
+                                        <th>Item Description</th>
+                                        <th>Reference</th>
+                                    </t>
+                                    <th class="col-xs-2" >Total Amount</th>
+                                    <!-- <t t-if="report_type=='sum'">
+                                        <th class="col-xs-1" >State</th>
+                                    </t> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_expense" t-value="0" />
+                                <t t-foreach="docs" t-as="doc">
+                                    <tr>
+                                        <td>
+                                            <t t-if="report_type=='sum'">
+                                                <t t-esc="doc.accounting_date" />
+                                            </t>
+                                            <t t-if="report_type=='detail'">
+                                                <t t-esc="doc.date" />
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-esc="doc.employee_id.name" />
+                                        </td>
+                                        <t t-if="report_type=='sum'">
+                                            <td>
+                                                <t t-esc="doc.name" />                                                
+                                            </td>
+                                        </t>
+                                        <t t-if="report_type=='detail'">
+                                            <td>
+                                                <t t-esc="doc.sheet_id.name" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="doc.name" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="doc.reference" />
+                                            </td>
+                                        </t>
+                                        <td class="text-right">
+                                            <t t-esc="doc.total_amount" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <!-- <t t-if="report_type=='sum'">
+                                        <td>
+                                            <t t-if="doc.state=='post'">
+                                                <p>Posted</p>
+                                            </t>
+                                            <t t-if="doc.state=='done'">
+                                                <p>Paid</p>
+                                            </t>
+                                        </td>
+                                        </t> -->
+                                    </tr>
+                                    <t t-set="total_expense" t-value="total_expense+doc.total_amount" />
+                                </t>
+
+                                <tr>
+                                    <t t-if="report_type=='sum'">
+                                        <td colspan="3" style="border-tope:thin solid black!important;"  >
+                                            <strong>TOTAL</strong>
+                                        </td>
+                                    </t>
+                                    <t t-if="report_type=='detail'">
+                                        <td colspan="5" style="border-tope:thin solid black!important;"  >
+                                            <strong>TOTAL</strong>
+                                        </td>
+                                    </t>
+                                    <td class="text-right" style="border-tope:thin solid black!important;" > 
+                                        <strong>
+                                            <t t-esc="total_expense" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                    <!-- <td></td> -->
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
